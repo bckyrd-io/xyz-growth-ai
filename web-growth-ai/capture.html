@@ -170,39 +170,25 @@
             <main class="main users chart-page" id="skip-target">
                 <div class="container">
                     <h2 class="main-title">Camera Capture</h2>
-
+                  
                     <div class="row">
-                        <div class="col-lg-6" hidden>
-                            <article class="sign-up-form form" action="" method="">
-                                <video id="camera" autoplay class="mb-2"
-                                    style="min-height: 60vh;width: 100% !important;background-color: rgba(3, 3, 3, 0.153);">
-                                </video>
-                            </article>
-                        </div>
+                        <div class="col-lg-8">
 
-                        <div class="col-lg-6">
-                            <article class="sign-up-form form" action="" method="">
-                                <canvas id="canvas" style="width: 100% !important;"></canvas>
-                                <form id="uploadForm" action="http://localhost:8000/upload" method="post"
-                                    enctype="multipart/form-data">
-                                    <label class="form-label-wrapper">
-                                        <input class="form-input" type="file" name="file" accept="image/*">
-                                        <input type="submit" class="form-btn primary-default-btn transparent-btn mt-5"
-                                            value="Upload">
-                                    </label>
-                                    <br>
-                                    <label class="form-label-wrapper">
-                                        <button id="captureButton"
-                                            class="form-btn primary-default-btn transparent-btn mt-5">Capture</button>
-                                    </label><br>
-                                    <label class="form-label-wrapper">
-                                        <a id="captureButton" href="schedule.html"
-                                            class="form-btn primary-default-btn transparent-btn mt-5">Schedule</a>
-                                    </label>
-                                </form>
-                            </article>
-                        </div>
+                            <video id="camera" autoplay class="mb-2 "
+                                style="min-height: auto; width: 100%; background-color: rgba(3, 3, 3, 0.153);"></video>
 
+                        </div>
+                        <div class="col-lg-4">
+                            <p><a href="schedule.html" class="link-info mt-5">* Schedule Auto Settings</a></p> <br>
+                            <button id="captureButton"
+                                class="form-btn primary-default-btn transparent-btn mt-5">Capture</button>
+                            <form id="uploadForm" class="form-label-wrapper" action="http://localhost:8000/capture"
+                                method="post" enctype="multipart/form-data">
+                                <input class="form-input form-control mt-5" type="file" name="file" accept="image/*"
+                                    id="fileInput" onchange="autoSubmit()">
+                            </form>
+                            <canvas id="canvas" style="width: 100%;"></canvas>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -225,102 +211,93 @@
     <script>
         const video = document.getElementById('camera');
         const canvas = document.getElementById('canvas');
-        const captureButton = document.getElementById('captureButto2n');
+        const context = canvas.getContext('2d');
         const uploadForm = document.getElementById('uploadForm');
 
-        /**
-         * Captures a photo from the camera, displays it on the webpage, and
-         * sends it to a server for further analysis.
-         * @returns {Blob} The captured photo as a file that can be sent over the internet.
-         */
+        async function getCaptureSettings() {
+            try {
+                const response = await fetch("http://localhost:8000/capture-settings");
+                if (!response.ok) throw new Error('Failed to fetch capture settings');
+                return await response.json();
+            } catch (error) {
+                swal("Error", "Failed to fetch capture settings.", "error");
+                return null;
+            }
+        }
+
+        document.getElementById('captureButton').addEventListener('click', captureImage);
+
         function captureImage() {
-            const context = canvas.getContext('2d');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // Capture the image data as a Blob
-            canvas.toBlob((blob) => {
-                if (blob) {
-                    // Create a FormData object to send the Blob as a file
-                    const formData = new FormData();
-                    formData.append('file', blob, 'captured_image.jpg');
-                    formData.append('user_id', getUserId());
+            canvas.toBlob(async (blob) => {
+                const formData = new FormData();
+                formData.append('file', blob, 'captured_image.jpg');
+                formData.append('user_id', 1); // Add your method to get the user ID
+                // formData.append('user_id', getUserId()); // Add your method to get the user ID
 
-                    // Create a fetch request to send the captured image data to the server
-                    fetch(`http://localhost:8000/capture`, {
+                try {
+                    const response = await fetch('http://localhost:8000/capture', {
                         method: 'POST',
-                        body: formData, // Send the image data as a file upload
-                    })
-                        .then((response) => {
-                            if (response.ok) {
-                                console.log('Image captured and sent successfully');
-                            } else {
-                                console.error('Failed to send the image');
-                            }
-                        })
-                        .catch((error) => {
-                            console.error('Error sending the image:', error);
-                        });
+                        body: formData,
+                    });
+                    if (response.ok) {
+                        swal("Success", "Image captured and sent successfully", "success");
+                    } else {
+                        swal("Error", "Failed to send the image.", "error");
+                    }
+                } catch (error) {
+                    swal("Error", "Error sending the image: " + error.message, "error");
                 }
             }, 'image/jpeg');
         }
 
-
-        // Request access to the camera
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-            .then((stream) => {
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                 video.srcObject = stream;
+            } catch (error) {
+                swal("Error", "Error accessing the camera: " + error.message, "error");
+            }
+        }
 
-                fetch("http://localhost:8000/capture-settings")
-                    .then((response) => response.json())
-                    .then((data) => {
-                        let times = 0, interval = 0;
-                        times = data.times + 1;// to muchthe less than in loop
-                        interval = data.interval;
-                        // Automatically capture # photos at #-second intervals 
-                        for (let i = 0; i < times; i++) {
-                            setTimeout(captureImage, i * interval);
+        async function initCaptureProcess() {
+            await startCamera();
+
+            const settings = await getCaptureSettings();
+            if (settings && settings.times > 0 && settings.interval > 0) {
+                for (let i = 0; i < settings.times; i++) {
+                    setTimeout(captureImage, i * settings.interval * 1000);
+                }
+            }
+        }
+
+        function autoSubmit() {
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length > 0) {
+                const formData = new FormData(uploadForm);
+                formData.append('user_id', getUserId()); // Add your method to get the user ID
+
+                fetch('http://localhost:8000/capture', {
+                    method: 'POST',
+                    body: formData,
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            swal("Success", "Image uploaded successfully.", "success");
+                        } else {
+                            swal("Error", "Failed to upload the image.", "error");
                         }
                     })
-                    .catch((error) => {
-                        console.error("Error:", error);
+                    .catch(error => {
+                        swal("Error", "Error uploading the image: " + error.message, "error");
                     });
+            }
+        }
 
-
-                // Capture an image when the "Capture Image" button is pressed
-                captureButton.addEventListener('click', () => {
-                    captureImage();
-                });
-
-            })
-            .catch((error) => {
-                console.error('Error accessing the camera:', error);
-            });
-
-
-
-        // Handle form submission to upload captured image
-        uploadForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const formData = new FormData(uploadForm);
-            formData.append('user_id', getUserId());
-
-            fetch('http://localhost:8000/capture', {
-                method: 'POST',
-                body: formData,
-            })
-                .then((response) => {
-                    if (response.ok) {
-                        console.log('Image uploaded successfully');
-                    } else {
-                        console.error('Failed to upload the image');
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error uploading the image:', error);
-                });
-        });
+        initCaptureProcess();
     </script>
 </body>
 

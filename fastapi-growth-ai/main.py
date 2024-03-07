@@ -126,6 +126,7 @@ async def get_plant_data(plant):
 
 
 #  Route to get growth analysis data for a user
+
 @app.get("/growth_analysis/{user_id}")
 def get_growth_analysis(user_id: int):
     db = SessionLocal()
@@ -134,32 +135,103 @@ def get_growth_analysis(user_id: int):
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Get growth analysis data for the user, grouped by growth stage and plant name
+    # Get growth analysis data for the user, focusing on counting unique stages for each plant name
     growth_analysis_data = (
         db.query(
             ImagePrediction.plant_name,
-            ImagePrediction.id,
-            ImagePrediction.growth_stage,
-            func.count().label("image_count")
+            func.count(func.distinct(ImagePrediction.growth_stage)).label("unique_stage_count")
         )
         .join(CapturedImage, CapturedImage.id == ImagePrediction.captured_images_id)
         .filter(CapturedImage.user_id == user_id)
-        .group_by(ImagePrediction.plant_name, ImagePrediction.growth_stage)
+        .group_by(ImagePrediction.plant_name)
         .all()
     )
 
-    # Format the response
+    # Format the response to include the plant name and the count of unique growth stages for each plant
     response_data = [
         {
             "plant_name": row.plant_name,
-            "growth_stage": row.growth_stage,
-            "image_count": row.image_count,
-            "prediction_id": row.id
+            "unique_stage_count": row.unique_stage_count
         }
         for row in growth_analysis_data
     ]
 
     return {"user_id": user_id, "growth_analysis": response_data}
+
+
+# ..
+
+@app.get("/plant_stages/{plant_name}/{user_id}")
+async def get_plant_stages(plant_name: str, user_id: int):
+    db: Session = SessionLocal()
+    
+    stages_data = (
+        db.query(
+            ImagePrediction.growth_stage, 
+            CapturedImage.timestamp,
+            CapturedImage.filename
+        )
+        .join(CapturedImage, CapturedImage.id == ImagePrediction.captured_images_id)
+        .filter(ImagePrediction.plant_name == plant_name, CapturedImage.user_id == user_id)
+        .order_by(CapturedImage.timestamp.asc())
+        .all()
+    )
+    
+    if not stages_data:
+        raise HTTPException(status_code=404, detail="No stages found for given plant name and user ID")
+
+    # Process the results to filter out only the latest entry for each growth stage
+    latest_stages = {}
+    for stage, timestamp, filename in stages_data:
+        if stage not in latest_stages or timestamp > latest_stages[stage]['timestamp']:
+            latest_stages[stage] = {'timestamp': timestamp, 'filename': filename}
+    
+    response_data = [
+        {
+            "growth_stage": stage,
+            "month": latest_stages[stage]['timestamp'].strftime("%Y-%m"),
+            "image_url": f"/img/{latest_stages[stage]['filename']}",
+        }
+        for stage in latest_stages
+    ]
+
+    return {"plant_stages": response_data}
+
+
+# ..
+
+@app.get("/plant_stages_data/{plant_name}/{user_id}")
+async def get_plant_stages_data(plant_name: str, user_id: int):
+    # Query to count the occurrences of each growth stage for the specified plant and user
+    db: Session = SessionLocal()
+    stage_counts = (
+        db.query(
+            ImagePrediction.growth_stage,
+            func.count(ImagePrediction.growth_stage).label('stage_count')
+        )
+        .join(CapturedImage, CapturedImage.id == ImagePrediction.captured_images_id)
+        .filter(ImagePrediction.plant_name == plant_name, CapturedImage.user_id == user_id)
+        .group_by(ImagePrediction.growth_stage)
+        .all()
+    )
+
+    if not stage_counts:
+        raise HTTPException(status_code=404, detail="No data found for given plant name and user ID")
+
+    # Constructing the response
+    stage_data = [
+        {
+            "stage_name": stage.growth_stage,
+            "stage_count": stage.stage_count
+        }
+        for stage in stage_counts
+    ]
+
+    return {
+        "stage_data": stage_data
+    }
+
+
 
 
 

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Growth Ai</title>
+    <title>Research</title>
     <!-- Favicon -->
     <link rel="shortcut icon" href="./img/svg/logo.svg" type="image/x-icon">
     <!-- Custom styles -->
@@ -17,8 +17,8 @@
     <!-- ! Body -->
     <a class="skip-link sr-only" href="#skip-target">Skip to content</a>
     <div class="page-flex">
-         <!-- ! Sidebar -->
-         <aside class="sidebar">
+        <!-- ! Sidebar -->
+        <aside class="sidebar">
             <div class="sidebar-start">
                 <div class="sidebar-head">
                     <a href="/" class="logo-wrapper" title="Home">
@@ -47,20 +47,18 @@
                         </li>
                         <li>
                             <a class="active" href="analyse.html"><span class="icon category"
-                                    aria-hidden="true"></span>Analyse Stage</a>
-                        </li>
-                        <li>
-                            <a class="" href="hub.html"><span class="icon message" aria-hidden="true"></span>Remarks
-                            </a>
+                                    aria-hidden="true"></span>Analysis</a>
                         </li>
                         <li>
                             <a class="" href="disease.html">
-                                <span class="icon folder" aria-hidden="true"></span>
-                                Defects List
+                                <span class="icon message" aria-hidden="true"></span>
+                                Desease List
                             </a>
                             <span class="msg-counter">!</span>
                         </li>
-                        
+                        <li>
+                            <a href="hub.html"><span class="icon folder" aria-hidden="true"></span>Remarks</a>
+                        </li>
                         <li>
                             <a class="" id="usersLink" href="users.html"><span class="icon user-3"
                                     aria-hidden="true"></span>users</a>
@@ -98,17 +96,17 @@
             <nav class="main-nav--bg">
                 <div class="container main-nav">
                     <div class="main-nav-start">
-                        <!-- <div class="search-wrapper">
+                        <div class="search-wrapper">
                             <i data-feather="search" aria-hidden="true"></i>
                             <input type="text" placeholder="Enter keywords ..." required>
-                        </div> -->
+                        </div>
                     </div>
                     <div class="main-nav-end">
                         <button class="sidebar-toggle transparent-btn" title="Menu" type="button">
                             <span class="sr-only">Toggle menu</span>
                             <span class="icon menu-toggle--gray" aria-hidden="true"></span>
                         </button>
-                        <!-- <div class="lang-switcher-wrapper">
+                        <div class="lang-switcher-wrapper">
                             <button class="lang-switcher transparent-btn" type="button">
                                 EN
                                 <i data-feather="chevron-down" aria-hidden="true"></i>
@@ -118,7 +116,7 @@
                                 <li><a href="##">French</a></li>
                                 <li><a href="##">Uzbek</a></li>
                             </ul>
-                        </div> -->
+                        </div>
                         <button class="theme-switcher gray-circle-btn" type="button" title="Switch theme">
                             <span class="sr-only">Switch theme</span>
                             <i class="sun-icon" data-feather="sun" aria-hidden="true"></i>
@@ -169,9 +167,24 @@
             <!-- ! Main -->
             <main class="main users chart-page" id="skip-target">
                 <div class="container">
-                    <h2 class="main-title">Tomato Stages</h2>
-                    <div class="row stat-cards" id="growthList">
-                        <!-- list inserted here  -->
+                    <h2 class="main-title" id="plant_title"></h2>
+                    <!-- <p class="link-info">
+                        <a class="form-btn btn"
+                            onclick="insertIntoResearchHub('${plant_name}','${growth_stage}','${prediction_id}')">
+                            Submit Stages
+                        </a>
+                    </p> -->
+                    <div class="d-flex row">
+                        <div class="col-md-6 " id="stageList">
+                            <!-- all the data here  -->
+                        </div>
+                        <div class="col-lg-4 " id="">
+                            <!-- pie chart goes here -->
+                            <br>
+                            <div class="chart">
+                                <canvas id="myChart" style="width: 100%;"></canvas>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -192,112 +205,132 @@
     <script src="js/script-user.js"></script>
     <script src="js/script-notes.js"></script>
 
-
     <script>
-        const growthList = document.getElementById("growthList");
-        const userId = getUserId();
+        function getUrlParams() {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            return {
+                userId: urlParams.get('user_id'),
+                plantName: urlParams.get('plant_name')
+            };
+        }
 
-        // Function to handle the insertion into ResearchHub
-        const insertIntoResearchHub = (plant_name, growth_stage, prediction_id) => {
-            const topic = `${plant_name} - ${growth_stage}`;
+        document.addEventListener('DOMContentLoaded', function () {
+            const { userId, plantName } = getUrlParams();
 
-            // Show SweetAlert confirmation dialog
-            swal({
-                title: "Are you sure?",
-                text: "Do you want to submit this data?",
-                icon: "warning",
-                buttons: true,
-                dangerMode: true,
-            })
-                .then((willSubmit) => {
-                    // Proceed with the fetch request if the user clicks "Continue"
-                    if (willSubmit) {
-                        // Insert data into ResearchHub table
-                        fetch(`http://localhost:8000/research_hub/?user_id=${userId}&topic=${encodeURIComponent(topic)}&image_prediction_id=${prediction_id}`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            // Body can be empty or include additional data if needed
-                            body: JSON.stringify({
-                                // Additional data if needed
-                            }),
-                        })
-                            .then((response) => {
-                                if (response.ok) {
-                                    swal({
-                                        title: "Submit successful",
-                                        text: "",
-                                        icon: "success",
-                                        timer: 5000,
-                                    });
-                                } else {
-                                    swal({
-                                        title: "Failed to submit",
-                                        text: "",
-                                        icon: "error",
-                                        timer: 5000,
-                                    });
-                                }
-                            })
-                            .catch((error) => {
-                                swal({
-                                    title: "Error sending form data",
-                                    text: error || "Please try again.",
-                                    icon: "error",
-                                    timer: 5000,
-                                });
-                            });
-                    } else {
-                        // Show a message if the user clicks "Cancel"
-                        swal("Submission canceled", {
-                            icon: "info",
-                        });
-                    }
-                });
-        };
+            // Update the plant_title with the plant name
+            const plantTitleElement = document.getElementById('plant_title');
+            if (plantTitleElement && plantName) {
+                plantTitleElement.textContent = `${decodeURIComponent(plantName)} - Stages`;
+            }
 
+            const baseUrl = 'http://localhost:8000';
+            const stageList = document.getElementById("stageList");
 
-        /**
-         * Fetches growth analysis data from the server based on the user ID.
-         * Processes the data and dynamically creates HTML elements to display growth analysis entries.
-         * Each entry includes details such as plant name, growth stage, image count, and prediction ID.
-         * Clicking "submit topic" invokes the insertIntoResearchHub function.
-         * Handles errors by logging to the console.
-         */
-        fetch(`http://localhost:8000/growth_analysis/${encodeURIComponent(userId)}`)
-            .then((response) => response.json())
-            .then((data) => {
-                data.growth_analysis.forEach((entry) => {
-                    const { plant_name, growth_stage, image_count, prediction_id } = entry;
-
-                    // Create HTML elements
-                    const growthItem = document.createElement("div");
-                    growthItem.className = "col-md-6 col-xl-6";
-                    // growthItem.href = "replies.html";
-
-                    growthItem.innerHTML = `
+            // Adjust the API URL to use the retrieved userId and plantName
+            fetch(`${baseUrl}/plant_stages/${encodeURIComponent(plantName)}/${encodeURIComponent(userId)}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    data.plant_stages.forEach((entry) => {
+                        const { month, growth_stage, image_url } = entry;
+                        const image = baseUrl + image_url;
+                        const growthItem = document.createElement("a");
+                        growthItem.className = "col-md-6 col-xl-6";
+                        growthItem.innerHTML = `
                         <article class="stat-cards-item" style="justify-content:space-between">
                             <div class="stat-cards-info">
-                                <h2 class="stat-cards-info__num">${growth_stage}</h2>
-                                <p class="stat-cards-info__title">${plant_name}</p>
-                                <p class="stat-cards-info__progress">
-                                    <a class="stat-cards-info__profit success" onclick="insertIntoResearchHub('${plant_name}','${growth_stage}','${prediction_id}')">
-                                        submit topic
-                                    </a>
-                                </p>
+                                <img src="${image}" alt="Photo" loading="lazy" style="width:100% !important;" />
+                                <br><br>
+                                <p class="">${growth_stage}
+                                <p>
+                                    <li class="stat-cards-info__title">${month}</li>
                             </div>
-                            <div class="stat-cards-icon success">${image_count}</div>
                         </article>
-                    `;
-
-                    growthList.appendChild(growthItem);
+                        `;
+                        stageList.appendChild(growthItem);
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
                 });
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-            });
+        });
+
     </script>
+
+
+    <!-- crop growth -->
+    <script>
+        (function () {
+            const { userId, plantName } = getUrlParams();
+            var ctx = document.getElementById('myChart');
+
+            if (ctx) {
+                var myCanvas = ctx.getContext('2d');
+                var myChart;
+
+                function createOrUpdateChartWithAPI() {
+                    // Adjust the API URL to use the retrieved userId and plantName
+                    fetch(`http://localhost:8000/plant_stages_data/${encodeURIComponent(plantName)}/${encodeURIComponent(userId)}`)
+
+                        .then(response => response.json())
+                        .then(apiData => {
+                            const stageNames = apiData.stage_data.map(item => item.stage_name);
+                            const stageCounts = apiData.stage_data.map(item => item.stage_count);
+                            const colorPalette = [
+                                'rgba(255, 99, 132, 0.6)',
+                                'rgba(54, 162, 235, 0.6)',
+                                'rgba(255, 206, 86, 0.6)',
+                                'rgba(75, 192, 192, 0.6)',
+                                'rgba(153, 102, 255, 0.6)',
+                                'rgba(255, 159, 64, 0.6)',
+                                'rgba(255, 99, 132, 0.6)',
+                                'rgba(54, 162, 235, 0.6)',
+                                'rgba(255, 206, 86, 0.6)',
+                                'rgba(75, 192, 192, 0.6)'
+                            ];
+
+                            if (myChart) {
+                                myChart.data.labels = stageNames;
+                                myChart.data.datasets[0].data = stageCounts;
+                                myChart.data.datasets[0].backgroundColor = colorPalette.slice(0, stageCounts.length);
+                                myChart.update();
+                            } else {
+                                myChart = new Chart(myCanvas, {
+                                    type: 'pie',
+                                    data: {
+                                        labels: stageNames,
+                                        datasets: [{
+                                            data: stageCounts,
+                                            backgroundColor: colorPalette.slice(0, stageCounts.length),
+                                            borderColor: 'rgba(255, 255, 255, 1)',
+                                            borderWidth: 2
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        plugins: {
+                                            legend: {
+                                                position: 'top',
+                                            }
+                                        }
+                                    },
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error fetching data from the API: ", error);
+                        });
+                }
+
+                createOrUpdateChartWithAPI();
+            }
+        })();
+    </script>
+
+
+
+
+
 
 
 </body>
