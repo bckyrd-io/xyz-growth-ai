@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Growth Ai | Research</title>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="./img/svg/logo.svg" type="image/x-icon">
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="./css/style.min.css">
+</head>
+
+<body>
+    <div class="layer"></div>
+    <main class="page-center">
+        <article class="sign-up">
+            <h1 class="sign-up__title">Welcome Back!</h1>
+            <p class="sign-up__subtitle">Sign in to your account to continue</p>
+            <form class="sign-up-form form" onsubmit="submitLoginForm(event)">
+                <label class="form-label-wrapper">
+                    <p class="form-label">Username</p>
+                    <input class="form-input" id="username" name="username" type="text"
+                        placeholder="Enter your username" required>
+                </label>
+                <label class="form-label-wrapper">
+                    <p class="form-label">Password</p>
+                    <input class="form-input" id="password" name="password" type="password"
+                        placeholder="Enter your password" required>
+                </label>
+                <a class="link-info forget-link" href="signup.html">Register Account ?</a>
+                <button class="form-btn primary-default-btn transparent-btn" type="submit">Sign
+                    in</button>
+            </form>
+        </article>
+    </main>
+    <!-- Chart library -->
+    <script src="./plugins/chart.min.js"></script>
+    <!-- Icons library -->
+    <script src="plugins/feather.min.js"></script>
+    <script src="plugins/sweetalert.min.js"></script>
+    <!-- Custom scripts -->
+    <script src="js/script.js"></script>
+    <script>
+        async function submitLoginForm(event) {
+            event.preventDefault();
+
+            const username = document.querySelector("#username").value;
+            const password = document.querySelector("#password").value;
+
+            if (!username || !password) {
+                swal({
+                    title: "Login failed",
+                    text: "Please fill in both fields.",
+                    icon: "error",
+                    timer: 5000,
+                });
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('username', username);
+            formData.append('password', password);
+
+            try {
+                const response = await fetch(`http://localhost:8000/login`, {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (response.status === 200) {
+                    // Login successful! Redirect to another page.
+                    const userData = await response.json();
+                    // Store the user role in session storage
+                    sessionStorage.setItem('userRole', userData.user_role);
+                    sessionStorage.setItem('userId', userData.user_id);
+                    sessionStorage.setItem('userName', userData.user_name);
+
+                    window.location.href = "reports.html";
+                } else {
+                    const errorData = await response.json();
+                    swal({
+                        title: "Login failed",
+                        text: errorData.detail || "Please try again.",
+                        icon: "error",
+                        timer: 5000,
+                    });
+                }
+            } catch (error) {
+                swal({
+                    title: "Error",
+                    text: "An error occurred. Please try again later.",
+                    icon: "error",
+                    timer: 5000,
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>

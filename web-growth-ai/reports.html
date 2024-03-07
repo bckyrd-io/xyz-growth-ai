@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research</title>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="./img/svg/logo.svg" type="image/x-icon">
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="./css/style.min.css">
+</head>
+
+<body>
+    <div class="layer"></div>
+    <!-- ! Body -->
+    <a class="skip-link sr-only" href="#skip-target">Skip to content</a>
+    <div class="page-flex">
+        <!-- ! Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-start">
+                <div class="sidebar-head">
+                    <a href="/" class="logo-wrapper" title="Home">
+                        <span class="sr-only">Home</span>
+                        <span class="icon logo" aria-hidden="true"></span>
+                        <!-- <div class="logo-text">
+                            <span class="logo-title">Elegant</span>
+                            <span class="logo-subtitle">Dashboard</span>
+                        </div> -->
+                    </a>
+                    <button class="sidebar-toggle transparent-btn" title="Menu" type="button">
+                        <span class="sr-only">Toggle menu</span>
+                        <span class="icon menu-toggle" aria-hidden="true"></span>
+                    </button>
+                </div>
+                <!-- sidebar body -->
+                <div class="sidebar-body">
+                    <ul class="sidebar-body-menu">
+                        <li>
+                            <a class="" href="reports.html"><span class="icon home" aria-hidden="true"></span>Reports
+                                Stats</a>
+                        </li>
+                        <li>
+                            <a class="" href="capture.html"><span class="icon image" aria-hidden="true"></span> Plant
+                                Capture</a>
+                        </li>
+                        <li>
+                            <a class="" href="analyse.html"><span class="icon category"
+                                    aria-hidden="true"></span>Analysis</a>
+                        </li>
+                        <li>
+                            <a class="active" href="disease.html">
+                                <span class="icon message" aria-hidden="true"></span>
+                                Desease List
+                            </a>
+                            <span class="msg-counter">!</span>
+                        </li>
+                        <li>
+                            <a class="" href="hub.html"><span class="icon folder" aria-hidden="true"></span>Reseach
+                                Hub</a>
+                        </li>
+                        <li>
+                            <a class="" id="usersLink" href="users.html"><span class="icon user-3"
+                                    aria-hidden="true"></span>users</a>
+                        </li>
+                        <li hidden>
+                            <a class="show-cat-btn" href="capture.html">
+                                <span class="icon image" aria-hidden="true"></span>Capture
+                                <span class="category__btn transparent-btn" title="Open list">
+                                    <span class="sr-only">Open list</span>
+                                    <span class="icon arrow-down" aria-hidden="true"></span>
+                                </span>
+                            </a>
+                            <ul class="cat-sub-menu" display="none"></ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="sidebar-footer">
+                <a href="##" class="sidebar-user">
+                    <span class="sidebar-user-img">
+                        <picture>
+                            <source srcset="./img/avatar/avatar-illustrated-02.webp" type="image/webp"><img
+                                src="./img/avatar/avatar-illustrated-02.png" alt="User name">
+                        </picture>
+                    </span>
+                    <div class="sidebar-user-info">
+                        <span class="sidebar-user__title" id="userTitle">Researcher__.</span>
+                        <span class="sidebar-user__subtitle" id="userName">role</span>
+                    </div>
+                </a>
+            </div>
+        </aside>
+        <div class="main-wrapper">
+            <!-- ! Main nav -->
+            <nav class="main-nav--bg">
+                <div class="container main-nav">
+                    <div class="main-nav-start">
+                        <div class="search-wrapper">
+                            <i data-feather="search" aria-hidden="true"></i>
+                            <input type="text" placeholder="Enter keywords ..." required>
+                        </div>
+                    </div>
+                    <div class="main-nav-end">
+                        <button class="sidebar-toggle transparent-btn" title="Menu" type="button">
+                            <span class="sr-only">Toggle menu</span>
+                            <span class="icon menu-toggle--gray" aria-hidden="true"></span>
+                        </button>
+                        <div class="lang-switcher-wrapper">
+                            <button class="lang-switcher transparent-btn" type="button">
+                                EN
+                                <i data-feather="chevron-down" aria-hidden="true"></i>
+                            </button>
+                            <ul class="lang-menu dropdown">
+                                <li><a href="##">English</a></li>
+                                <li><a href="##">French</a></li>
+                                <li><a href="##">Uzbek</a></li>
+                            </ul>
+                        </div>
+                        <button class="theme-switcher gray-circle-btn" type="button" title="Switch theme">
+                            <span class="sr-only">Switch theme</span>
+                            <i class="sun-icon" data-feather="sun" aria-hidden="true"></i>
+                            <i class="moon-icon" data-feather="moon" aria-hidden="true"></i>
+                        </button>
+                        <div class="notification-wrapper">
+                            <button class="gray-circle-btn dropdown-btn" title="To messages" type="button">
+                                <span class="sr-only">To messages</span>
+                                <span class="icon notification active" aria-hidden="true"></span>
+                            </button>
+                            <ul class="users-item-dropdown notification-dropdown dropdown" id="notification">
+                                <!-- notification scripts list dropdown -->
+                                <li>
+                                    <a class="link-to-page" href="##">Todays Only Notifications</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="nav-user-wrapper">
+                            <button href="##" class="nav-user-btn dropdown-btn" title="My profile" type="button">
+                                <span class="sr-only">My profile</span>
+                                <span class="nav-user-img">
+                                    <picture>
+                                        <source srcset="./img/avatar/avatar-illustrated-02.webp" type="image/webp"><img
+                                            src="./img/avatar/avatar-illustrated-02.png" alt="User name">
+                                    </picture>
+                                </span>
+                            </button>
+                            <ul class="users-item-dropdown nav-user-dropdown dropdown">
+                                <li><a href="##">
+                                        <i data-feather="user" aria-hidden="true"></i>
+                                        <span>Profile</span>
+                                    </a></li>
+                                <li><a href="##">
+                                        <i data-feather="settings" aria-hidden="true"></i>
+                                        <span>Account settings</span>
+                                    </a></li>
+                                <li>
+                                    <a class="danger" id="logoutLink" href="##">
+                                        <i data-feather="log-out" aria-hidden="true"></i>
+                                        <span>Log out</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <!-- ! Main -->
+            <main class="main users chart-page" id="skip-target">
+                <div class="container">
+                    <h2 class="main-title">Dashboard</h2>
+
+                    <div class="row">
+                        <div class="col-lg-9">
+                            <div class="chart">
+                                <!-- <canvas id="myChart" aria-label="Site statistics" role="img"></canvas> -->
+                                <canvas id="myChart" aria-label="Site statistics" role="img"
+                                    style="width: 100%; min-height: 400px;"></canvas>
+
+
+                                <!-- <canvas id="lineChart" width="400" height="200"></canvas> -->
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <article class="white-block">
+                                <div class="top-cat-title">
+                                    <h3>Plant List</h3>
+                                    <p>identified this season</p>
+                                </div>
+                                <ul class="top-cat-list">
+                                    <li>
+                                        <div id="items-list"></div>
+                                        <!-- Add a canvas element for the line chart -->
+
+
+                                        <!-- Display the list of all plant names -->
+
+                                    </li>
+                                </ul>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+
+    <!-- Chart library -->
+    <script src="./plugins/chart.min.js"></script>
+    <!-- Icons library -->
+    <script src="plugins/feather.min.js"></script>
+    <script src="plugins/sweetalert.min.js"></script>
+    <!-- Custom scripts -->
+    <script src="js/script.js"></script>
+    <script src="js/script-user.js"></script>
+    <script src="js/script-notes.js"></script>
+
+    <!-- crop growth -->
+    <script>
+        (function () {
+        /**
+         * Function to make an API request and create/update the crop growth chart.
+         * It fetches data on captured plant counts per day and utilizes Chart.js to render the dynamic chart.
+         * If the chart already exists, it gets updated with the latest data; otherwise, a new chart is created.
+         * Replace 'http://localhost:8000/captured_data' with your actual API endpoint.
+         */
+            var width, height, gradient;
+
+            function getGradient(ctx, chartArea) {
+                var chartWidth = chartArea.right - chartArea.left;
+                var chartHeight = chartArea.bottom - chartArea.top;
+
+                if (gradient === null || width !== chartWidth || height !== chartHeight) {
+                    width = chartWidth;
+                    height = chartHeight;
+                    gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                    gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+                    gradient.addColorStop(1, 'rgba(255, 255, 255, 0.4)');
+                }
+
+                return gradient;
+            }
+            /* Visitors chart */
+
+            var ctx = document.getElementById('myChart');
+
+            if (ctx) {
+                var myCanvas = ctx.getContext('2d');
+                var myChart;
+
+                function createOrUpdateChartWithAPI() {
+                    fetch(`http://localhost:8000/captured_data`)
+                        .then(response => response.json())
+                        .then(apiData => {
+                            const days = apiData.plants_per_day.map(item => item.day);
+                            const plantCounts = apiData.plants_per_day.map(item => item.plant_count);
+
+                            // Check if the chart has been created or not
+                            if (myChart) {
+                                // Update the existing chart with new data
+                                myChart.data.labels = days;
+                                myChart.data.datasets[0].data = plantCounts;
+                                myChart.update();
+                            } else {
+                                // Create a new horizontal line chart if it doesn't exist
+                                myChart = new Chart(myCanvas, {
+                                    type: 'line',
+                                    data: {
+                                        labels: days,
+                                        datasets: [{
+                                            label: 'Plant Count',
+                                            data: plantCounts,
+                                            cubicInterpolationMode: 'monotone',
+                                            tension: 0.4,
+                                            backgroundColor: ['rgba(75, 222, 151, 1)'],
+                                            borderColor: ['rgba(75, 222, 151, 1)'],
+                                            borderWidth: 2
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        plugins: {
+                                            legend: {
+                                                position: 'bottom',
+                                            }
+                                        }
+                                    },
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching data from the API:', error);
+                        });
+                }
+
+                // Call the function to create or update the chart with API data
+                createOrUpdateChartWithAPI();
+            }
+        })();
+        /* Change data of all charts */
+        async function fetchItems() {
+            const response = await fetch('http://localhost:8000/captured_data');
+            if (!response.ok) {
+                throw new Error(`Failed to fetch items: ${response.statusText}`);
+            }
+
+            const items = await response.json();
+            const itemsListElement = document.getElementById('items-list');
+            itemsListElement.innerHTML = '';
+
+            // Display plant names
+            for (const plantName of items.all_plant_names) {
+                const plantListItemElement = document.createElement('li');
+                plantListItemElement.innerHTML = `<a href="plant__report.html?plant=${plantName}">${plantName}</a>`;
+                itemsListElement.appendChild(plantListItemElement);
+            }
+
+        }
+
+
+        fetchItems();
+    </script>
+
+
+</body>
+
+</html>

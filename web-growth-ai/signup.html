@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elegant Dashboard | Register</title>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="./img/svg/logo.svg" type="image/x-icon">
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="./css/style.min.css">
+</head>
+
+<body>
+    <div class="layer"></div>
+    <main class="page-center">
+        <article class="sign-up">
+            <h1 class="sign-up__title">Get started</h1>
+            <p class="sign-up__subtitle">Start creating the best research on plant growth </p>
+
+            <form class="sign-up-form form" onsubmit="registerUser(event)">
+                <label class="form-label-wrapper">
+                    <p class="form-label">Username</p>
+                    <input class="form-input" id="username" type="text" placeholder="Enter your username" required>
+                </label>
+                <label class="form-label-wrapper">
+                    <p class="form-label">Email</p>
+                    <input class="form-input" id="email" type="email" placeholder="Enter your Email" required>
+                </label>
+                <label class="form-label-wrapper">
+                    <p class="form-label">Password</p>
+                    <input class="form-input" id="password" type="password" placeholder="Enter your password" required>
+                </label>
+                <a class="link-info forget-link" href="index.html">Login?</a>
+                <button class="form-btn primary-default-btn transparent-btn" type="submit">Register</button>
+            </form>
+        </article>
+    </main>
+    <script src="./plugins/chart.min.js"></script>
+    <script src="plugins/feather.min.js"></script>
+    <script src="plugins/sweetalert.min.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        async function registerUser(event) {
+            event.preventDefault();
+
+            const username = document.querySelector("#username").value;
+            const email = document.querySelector("#email").value;
+            const password = document.querySelector("#password").value;
+
+            if (username.trim() === "" || email.trim() === "" || password.trim() === "") {
+                swal({
+                    title: "Registration failed.",
+                    text: "Please fill in all the required fields.",
+                    icon: "error",
+                    timer: 5000,
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8000/register`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        username,
+                        email,
+                        password,
+                    }),
+                });
+
+                if (response.ok) {
+                    swal({
+                        title: "Registration successful",
+                        text: "Please go to the login page.",
+                        icon: "success",
+                        timer: 5000,
+                    });
+                } else {
+                    const errorData = await response.json();
+                    swal({
+                        title: "Registration failed",
+                        text: errorData.detail || "Please try again.",
+                        icon: "error",
+                        timer: 5000,
+                    });
+                }
+            } catch (error) {
+                swal({
+                    title: "Error",
+                    text: "An error occurred. Please try again later.",
+                    icon: "error",
+                    timer: 5000,
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>
