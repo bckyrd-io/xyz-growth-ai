@@ -212,13 +212,15 @@
 
     <!-- crop growth -->
     <script>
+        const user_id = getUserId();
+
         (function () {
-        /**
-         * Function to make an API request and create/update the crop growth chart.
-         * It fetches data on captured plant counts per day and utilizes Chart.js to render the dynamic chart.
-         * If the chart already exists, it gets updated with the latest data; otherwise, a new chart is created.
-         * Replace 'http://localhost:8000/captured_data' with your actual API endpoint.
-         */
+            /**
+             * Function to make an API request and create/update the crop growth chart.
+             * It fetches data on captured plant counts per day and utilizes Chart.js to render the dynamic chart.
+             * If the chart already exists, it gets updated with the latest data; otherwise, a new chart is created.
+             * Replace 'http://localhost:8000/captured_data' with your actual API endpoint.
+             */
             var width, height, gradient;
 
             function getGradient(ctx, chartArea) {
@@ -244,7 +246,7 @@
                 var myChart;
 
                 function createOrUpdateChartWithAPI() {
-                    fetch(`http://localhost:8000/captured_data`)
+                    fetch(`http://localhost:8000/captured_data/${user_id}`)
                         .then(response => response.json())
                         .then(apiData => {
                             const days = apiData.plants_per_day.map(item => item.day);
@@ -294,7 +296,7 @@
         })();
         /* Change data of all charts */
         async function fetchItems() {
-            const response = await fetch('http://localhost:8000/captured_data');
+            const response = await fetch(`http://localhost:8000/captured_data/${user_id}`);
             if (!response.ok) {
                 throw new Error(`Failed to fetch items: ${response.statusText}`);
             }

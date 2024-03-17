@@ -46,9 +46,6 @@ app.add_middleware(
 
 
 
-
-
-
 # Mount the 'img' directory to serve static files
 app.mount("/img", StaticFiles(directory="img"), name="img")
 
@@ -56,39 +53,50 @@ app.mount("/img", StaticFiles(directory="img"), name="img")
 
 # Import your models and SessionLocal here
 
-@app.get("/captured_data")
-async def get_captured_data():
+
+@app.get("/captured_data/{user_id}")
+async def get_captured_data(user_id: int):
     db = SessionLocal()
-    # Group by timestamp and count the number of distinct plant names
-    plants_per_day = (
-        db.query(
-            func.DATE(CapturedImage.timestamp).label('day'),
-            func.count(distinct(ImagePrediction.plant_name)
-                       ).label('plant_count')
-        )
-        # Adjust the join condition
-        .join(ImagePrediction, CapturedImage.id == ImagePrediction.captured_images_id)
-        .filter(ImagePrediction.plant_name.isnot(None))
-        .group_by('day')
-        .all()
+    # Directly check the user's role within the function
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    user_role = user.role
+
+    # Adjust the query based on the user role
+    query = db.query(
+        func.DATE(CapturedImage.timestamp).label('day'),
+        func.count(distinct(ImagePrediction.plant_name)).label('plant_count')
+    ).join(
+        ImagePrediction, CapturedImage.id == ImagePrediction.captured_images_id
+    ).filter(
+        ImagePrediction.plant_name.isnot(None)
     )
 
-    # Get all distinct plant names
-    all_plant_names = (
-        db.query(ImagePrediction.plant_name.distinct())
-        .filter(ImagePrediction.plant_name.isnot(None))
-        .group_by('plant_name')
-        .all()
+    # If not an admin, filter by user_id
+    if user_role != "admin":
+        query = query.filter(CapturedImage.user_id == user_id)
+
+    plants_per_day = query.group_by('day').all()
+
+    # Adjust plant names query based on user role
+    plant_names_query = db.query(
+        ImagePrediction.plant_name.distinct()
+    ).filter(
+        ImagePrediction.plant_name.isnot(None)
     )
 
-    db.close()
+    if user_role != "admin":
+        plant_names_query = plant_names_query.join(
+            CapturedImage, CapturedImage.id == ImagePrediction.captured_images_id
+        ).filter(CapturedImage.user_id == user_id)
 
-    # Return a combined response with captured images, captured plants, and plants per day
+    all_plant_names = plant_names_query.group_by(ImagePrediction.plant_name).all()
+
     return {
         "plants_per_day": [{"day": plant.day, "plant_count": plant.plant_count} for plant in plants_per_day],
         "all_plant_names": [plant[0] for plant in all_plant_names],
     }
-
 # FastAPI route to get data for a specific plant by its id
 
 
@@ -560,10 +568,23 @@ async def delete_user(user_id: int):
     return {"message": "User deleted successfully"}
 
 
-@app.get("/users")
-async def list_users():
-    users = get_all_users()
-    return {"users": users}
+@app.get("/users/{user_id}")
+async def list_users(user_id: int):
+    db = SessionLocal()
+    # Attempt to retrieve the user to check their role
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.role == "admin":
+        users = db.query(User).all()
+    else:
+        # Non-admin users get only their data
+        users = [user]  # Note: This keeps it as a list to match the expected structure
+    # Prepare users data for JSON response
+    users_data = [{"id": user.id, "username": user.username, "email": user.email, "role": user.role} for user in users]
+
+    return {"users": users_data}
+
 
 
 if __name__ == "__main__":

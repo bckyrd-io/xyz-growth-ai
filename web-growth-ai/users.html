@@ -205,9 +205,13 @@
     <script src="js/script-notes.js"></script>
 
     <script>
+        const user_id = getUserId();
+        console.log("if user role is not admin he cant edit" + getUserRole());
+
+
         // Function to fetch users and populate the table
         async function fetchAndPopulateUsers() {
-            const response = await fetch("http:localhost:8000/users", {
+            const response = await fetch(`http:localhost:8000/users/${user_id}`, {
                 method: "GET",
             });
 
@@ -223,6 +227,23 @@
                 // Loop through user data and create table rows
                 userData.users.forEach(user => {
                     const row = document.createElement("tr");
+                    let userManagementLinks = '';
+
+                    if (getUserRole() === "admin") {
+                        userManagementLinks = `
+                            <td>
+                                <a href="#" class="text-info" onclick="editUserRole(${user.id}, '${user.username.replace(/'/g, "\\'")}')">Edit</a> |
+                                <a href="#" class="text-danger" onclick="deleteUser(${user.id}, '${user.username.replace(/'/g, "\\'")}')">Delete</a>
+                            </td>
+                        `;
+                    } else {
+                        userManagementLinks = `
+                            <td>
+                               
+                            </td>
+                        `;
+                    }
+
                     row.innerHTML = `
                         <td>
                             <div class="pages-table-img">
@@ -234,10 +255,7 @@
                             </div>
                         </td>
                         <td><span class="badge-pending">${user.role}</span></td>
-                        <td>
-                            <a href="##" class="text-info" onclick="editUserRole(${user.id}, '${user.username}')">Edit</a>
-                            <a href="##" class="feather feather-info" onclick="deleteUser(${user.id}, '${user.username}')">Delete</a>
-                        </td>
+                        ${userManagementLinks}
                     `;
                     userTableBody.appendChild(row);
                 });
