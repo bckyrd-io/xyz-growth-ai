@@ -175,6 +175,7 @@ async def get_plant_stages(plant_name: str, user_id: int):
     
     stages_data = (
         db.query(
+            ImagePrediction.id,
             ImagePrediction.growth_stage, 
             CapturedImage.timestamp,
             CapturedImage.filename
@@ -190,12 +191,17 @@ async def get_plant_stages(plant_name: str, user_id: int):
 
     # Process the results to filter out only the latest entry for each growth stage
     latest_stages = {}
-    for stage, timestamp, filename in stages_data:
+    for image_pred_id, stage, timestamp, filename in stages_data:
         if stage not in latest_stages or timestamp > latest_stages[stage]['timestamp']:
-            latest_stages[stage] = {'timestamp': timestamp, 'filename': filename}
+            latest_stages[stage] = {
+                'image_prediction_id': image_pred_id,
+                'timestamp': timestamp, 
+                'filename': filename
+            }
     
     response_data = [
         {
+            "prediction_id": latest_stages[stage]['image_prediction_id'],
             "growth_stage": stage,
             "month": latest_stages[stage]['timestamp'].strftime("%Y-%m"),
             "image_url": f"/img/{latest_stages[stage]['filename']}",

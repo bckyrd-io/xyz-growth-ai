@@ -168,12 +168,8 @@
             <main class="main users chart-page" id="skip-target">
                 <div class="container">
                     <h2 class="main-title" id="plant_title"></h2>
-                    <!-- <p class="link-info">
-                        <a class="form-btn btn"
-                            onclick="insertIntoResearchHub('${plant_name}','${growth_stage}','${prediction_id}')">
-                            Submit Stages
-                        </a>
-                    </p> -->
+
+
                     <div class="d-flex row">
                         <div class="col-md-6 " id="stageList">
                             <!-- all the data here  -->
@@ -232,18 +228,23 @@
                 .then((response) => response.json())
                 .then((data) => {
                     data.plant_stages.forEach((entry) => {
-                        const { month, growth_stage, image_url } = entry;
+                        const { month, growth_stage, image_url, prediction_id  } = entry;
                         const image = baseUrl + image_url;
                         const growthItem = document.createElement("a");
                         growthItem.className = "col-md-6 col-xl-6";
                         growthItem.innerHTML = `
-                        <article class="stat-cards-item" style="justify-content:space-between">
+                        <article class="stat-cards-item" >
                             <div class="stat-cards-info">
                                 <img src="${image}" alt="Photo" loading="lazy" style="width:100% !important;" />
                                 <br><br>
                                 <p class="">${growth_stage}
                                 <p>
                                     <li class="stat-cards-info__title">${month}</li>
+                                </p>
+                                <button class="form-btn primary-default-btn " style="width: max-content;"
+                                    onclick="insertIntoResearchHub('${plantName}','${growth_stage}','${prediction_id}')">
+                                    Submit Stage
+                                </button>
                             </div>
                         </article>
                         `;
@@ -259,6 +260,7 @@
 
 
     <!-- crop growth -->
+    <!-- '${plant_name}','${growth_stage}','${prediction_id}' -->
     <script>
         (function () {
             const { userId, plantName } = getUrlParams();
@@ -325,6 +327,78 @@
                 createOrUpdateChartWithAPI();
             }
         })();
+    </script>
+
+
+    <script>
+        // Function to handle the insertion into ResearchHub
+        const insertIntoResearchHub = (plant_name, growth_stage, prediction_id) => {
+            const topic = `${plant_name} - ${growth_stage}`;
+            const { userId } = getUrlParams();
+
+            console.log("we are loging from here");
+            console.log("topic"+topic);
+            console.log("userId"+userId);
+            console.log("prediction_id"+prediction_id);
+            console.log("loging ends here ");
+
+            // Show SweetAlert confirmation dialog
+            swal({
+                title: "Are you sure?",
+                text: "Do you want to submit this data?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+                .then((willSubmit) => {
+                    // Proceed with the fetch request if the user clicks "Continue"
+                    if (willSubmit) {
+                        // Insert data into ResearchHub table
+                        fetch(`http://localhost:8000/research_hub/?user_id=${userId}&topic=${topic}&image_prediction_id=${prediction_id}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            // Body can be empty or include additional data if needed
+                            body: JSON.stringify({
+                                // Additional data if needed
+                            }),
+                        })
+                            .then((response) => {
+                                if (response.ok) {
+                                    swal({
+                                        title: "Submit successful",
+                                        text: "",
+                                        icon: "success",
+                                        timer: 5000,
+                                    });
+                                } else {
+                                    swal({
+                                        title: "Failed to submit",
+                                        text: "",
+                                        icon: "error",
+                                        timer: 5000,
+                                    });
+                                }
+                            })
+                            .catch((error) => {
+                                swal({
+                                    title: "Error sending form data",
+                                    text: error || "Please try again.",
+                                    icon: "error",
+                                    timer: 5000,
+                                });
+                            });
+                    } else {
+                        // Show a message if the user clicks "Cancel"
+                        swal("Submission canceled", {
+                            icon: "info",
+                        });
+                    }
+                });
+        };
+
+
     </script>
 
 
